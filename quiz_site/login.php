@@ -13,24 +13,27 @@ $page->finalizeBottomSection();
 
 print $page->getTopSection();
 
-
 echo '
 <div class="container-fluid bg">
   <div class="row justify-content-center">
     <div class="col-12 col-sm-6 col-md-3">
         <!-- Form --->
-        <form class=form-container>
-        <h3>Account Sign In</h3>
+        <form class="form-container" action="login_action.php" method="POST" role="form">
+        <h2>Quiz Site<h2>
+        <h3>Sign In</h3>
           <div class="form-group">
-            <label>Username</label>
-            <input type="text" class="form-control" id="username">
+            <label for="username">Username</label>
+            <div>
+              <input type="text" class="form-control" id="username" name="username" >
+            </div>
           </div>
           <div class="form-group">
-            <label>Password</label>
-            <input type="password" class="form-control" id="password" placeholder="*******">
+            <label for="password">Password</label>
+            <div>
+              <input type="password" class="form-control" placeholder="*******" id="password" name="password">
+            </div>
           </div>
           <button type="submit" class="btn btn-primary btn-block">Submit</button>
-      </form>
     </div>
   </div>
 </div>
