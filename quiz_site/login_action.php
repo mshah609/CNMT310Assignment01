@@ -1,8 +1,15 @@
 <?php
 
-$users = array('admin_user' => '$2y$10$XmCRHa/h.eEk2gwKisYPK.yMQoBqDxD2AaU6ZVLDAs5suxGfxuqlO','munim' => '$2y$10$K43Vc9NBMS/Pypm8dga6fuycNL0YrLzwr3AofMY0KpnN0ImOGXbJu' );
-$errors = array();
-$isloggedin = false;
+require_once("classes/Login_Template.php");
+require_once("includes.php");
+include('users.php');
+
+if (isset($_SESSION['isLoggedIn'])) {
+  $_SESSION['isLoggedIn'] = false;
+}
+
+$_SESSION['errors'] = array();
+
 
 //check if password and username are both set otherwise return error
 if ( (isset($_POST['username']) && !empty($_POST['username'])) && (isset($_POST['password']) && !empty($_POST['password'])) ){
@@ -10,19 +17,22 @@ if ( (isset($_POST['username']) && !empty($_POST['username'])) && (isset($_POST[
 
   #check if valid username and Password else return error
   if (array_key_exists( $_POST['username'] , $users) && password_verify($_POST['password'], $users[$_POST['username']]) === true){
-    $isloggedin = true;
+    $_SESSION['isLoggedIn'] = true;
+    $_SESSION['username'] = $_POST['username'];
+    die(header("Location: " . AUTHENTICATED_HOME));
   }
   else{
-    $errors[] = "Invalid username or password has been entered";
-    $isloggedin = false;
+    $_SESSION['errors'][] = "Invalid username or password has been entered";
+    $_SESSION['isLoggedIn'] = false;
+    die(header("Location: " . LOGIN_PAGE));
   }
 
 }
 else{
-  $errors[] = "Please fill out the form";
+  $_SESSION['isLoggedIn'] = false;
+  $_SESSION['errors'][] = "Please fill out the form";
+  die(header("Location: " . LOGIN_PAGE));
 }
-
-require_once("classes/Login_Template.php");
 
 $page = new Login_Template("Quiz login");
 
@@ -54,18 +64,8 @@ echo '
             <div>
               <input type="password" class="form-control" placeholder="*******" id="password" name="password">
             </div>
-          </div>' . "\n";
-
-          if ($isloggedin){
-            print "       <p>Hello, you are logged in</p>";
-          }
-          else{
-            foreach ($errors as $error) {
-              print "        <p>" . $error . "</p>";
-            }
-          }
-
-          echo'<button type="submit" class="btn btn-primary btn-block">Submit</button>
+          </div>
+       <button type="submit" class="btn btn-primary btn-block">Submit</button>
     </div>
   </div>
 </div>

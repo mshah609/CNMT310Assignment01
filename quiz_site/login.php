@@ -1,5 +1,10 @@
 <?php
 
+require_once("includes.php");
+if (isset($_SESSION['isLoggedIn'])) {
+  $_SESSION['isLoggedIn'] = false;
+}
+
 require_once("classes/Login_Template.php");
 
 $page = new Login_Template("Quiz login");
@@ -12,6 +17,8 @@ $page->finalizeBottomSection();
 
 
 print $page->getTopSection();
+
+
 
 echo '
 <div class="container-fluid bg">
@@ -32,14 +39,21 @@ echo '
             <div>
               <input type="password" class="form-control" placeholder="*******" id="password" name="password">
             </div>
-          </div>
-          <button type="submit" class="btn btn-primary btn-block">Submit</button>
+          </div>' . "\n";
+
+          if (isset($_SESSION['errors']) && count($_SESSION['errors']) > 0) {
+            foreach ($_SESSION['errors'] as $errorIndex => $errorMessage) {
+              print $errorMessage . "<br>\n";
+            }
+            unset($_SESSION['errors']);
+          }
+
+          echo'<button type="submit" class="btn btn-primary btn-block">Submit</button>
     </div>
   </div>
 </div>
 ';
 echo "\n";
-
 print $page->getBottomSection();
 
 
