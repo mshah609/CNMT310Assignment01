@@ -1,8 +1,8 @@
 <?php
 
 require_once("classes/Login_Template.php");
+require_once("classes/WebServiceClient.php");
 require_once("includes.php");
-include('users.php');
 
 if (isset($_SESSION['isLoggedIn'])) {
   $_SESSION['isLoggedIn'] = false;
@@ -10,29 +10,51 @@ if (isset($_SESSION['isLoggedIn'])) {
 
 $_SESSION['errors'] = array();
 
+//Authentication
+$client = new WebServiceClient(AUTH_WEBSERVICE);
 
-//check if password and username are both set otherwise return error
+$data = array('apikey' => APIKEY,
+              'apiuser' => APIUSER,
+              'password' => $_POST['password'],
+              'username' => $_POST['username']
+              );
+
+$client->setPostFields($data);
+$authenticationRequest = $client->send();
+$authObject = json_decode($authenticationRequest);
+
+if (!is_object($authObject)) {
+  $_SESSION['errors'][] = "Error: Authentication Issues";
+  $_SESSION['isLoggedIn'] = false;
+  die(header("Location: " . LOGIN_PAGE));
+}
+
 if ( (isset($_POST['username']) && !empty($_POST['username'])) && (isset($_POST['password']) && !empty($_POST['password'])) ){
-
-
-  #check if valid username and Password else return error
-  if (array_key_exists( $_POST['username'] , $users) && password_verify($_POST['password'], $users[$_POST['username']]) === true){
-    $_SESSION['isLoggedIn'] = true;
-    $_SESSION['username'] = $_POST['username'];
-    die(header("Location: " . AUTHENTICATED_HOME));
-  }
-  else{
-    $_SESSION['errors'][] = "Invalid username or password has been entered";
-    $_SESSION['isLoggedIn'] = false;
-    die(header("Location: " . LOGIN_PAGE));
-  }
-
+    if ($authObject->result == "Success") {
+      $_SESSION['isLoggedIn'] = true;
+      $_SESSION['full_name'] = $authObject->name;
+      $_SESSION['email'] = $authObject->email;
+      $_SESSION['user_role'] = $authObject->user_role;
+      $_SESSION['username'] = $authObject->username;
+      $_SESSION['correct_count'] = 0;
+      die(header("Location: " . AUTHENTICATED_HOME));
+    }
+    elseif ($authObject->code == "8" || $authObject->code == "9") {
+      $_SESSION['errors'][] = "Invalid username or password has been entered";
+      $_SESSION['isLoggedIn'] = false;
+      die(header("Location: " . LOGIN_PAGE));
+    }
+    else {
+      $_SESSION['errors'][] = "Error: Authentication Issues";
+      $_SESSION['isLoggedIn'] = false;
+      die(header("Location: " . LOGIN_PAGE));
+    }
 }
 else{
   $_SESSION['isLoggedIn'] = false;
   $_SESSION['errors'][] = "Please fill out the form";
   die(header("Location: " . LOGIN_PAGE));
-}
+}//Authentication end
 
 $page = new Login_Template("Quiz login");
 

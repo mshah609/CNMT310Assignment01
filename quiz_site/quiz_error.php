@@ -46,7 +46,7 @@ echo "\n";
 
 echo '<h1 align="center">
 		<font face="Lato" color="#fff" size="7">
-			Hello, Welcome ' . $_SESSION['full_name'] .' you are logged in !</font>
+			Failed to load question please try again</font>
 	</h1>';
 
 print $page->getBottomSection();
